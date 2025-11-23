@@ -30,20 +30,20 @@ GENRE_TO_SUBJECT = {
 }
 
 YEAR_RANGES = {
-    "📜 Before 1950": (None, 1949),
-    "🎞️ 1950–1980": (1950, 1980),
-    "💾 1980–2000": (1980, 2000),
-    "📘 2000–2010": (2000, 2010),
-    "📗 2010–2020": (2010, 2020),
-    "🆕 After 2020": (2021, None),
+    " Before 1950": (None, 1949),
+    " 1950–1980": (1950, 1980),
+    " 1980–2000": (1980, 2000),
+    " 2000–2010": (2000, 2010),
+    " 2010–2020": (2010, 2020),
+    " After 2020": (2021, None),
     "🎲 No preference": (None, None),
 }
 
 LENGTH_RANGES = {
-    "📄 Snack-size (< 200 pages)": (0, 199),
-    "📘 A normal meal (200–400 pages)": (200, 400),
-    "📚 A full feast (400+ pages)": (401, None),
-    "🤷 Surprise me (any length)": (None, None),
+    " Snack-size (< 200 pages)": (0, 199),
+    " A normal meal (200–400 pages)": (200, 400),
+    " A full feast (400+ pages)": (401, None),
+    " 🎲 Surprise me (any length)": (None, None),
 }
 
 MOOD_EXTRA_SUBJECTS = {
@@ -211,7 +211,7 @@ st.title("📚 Bookify – Swipe Your Next Read!")
 st.write("""
 👋 **Welcome to Bookify — where every reader finds their perfect match!**  
 Take our fun, short quiz and let us pair you with a book that feels *just right*.  
-Ready to meet your next story? 📖✨
+Ready to meet your next story? 
 """)
 
 # State
@@ -264,7 +264,7 @@ with st.form("quiz"):
     audience = st.selectbox("Who's reading?", ["Just me", "Me & kids"])
     kids = "Yes" if audience == "Me & kids" else "No"
 
-    go = st.form_submit_button("✨ Find Books")
+    go = st.form_submit_button("Find Books")
 
 # =========================
 #  LOAD RESULTS
@@ -346,4 +346,5 @@ if book:
 
 elif go:
     st.info("Try adjusting your filters for more results.")
+
 
