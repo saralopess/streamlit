@@ -36,7 +36,7 @@ LANGUAGE_TO_CODE = {
     "French 🇫🇷": "fre",
     "German 🇩🇪": "ger",
     "Italian 🇮🇹": "ita",
-    "No preference 🤷": None
+    "No preference 🤷": None,
 }
 
 YEAR_RANGES = {
@@ -50,10 +50,10 @@ YEAR_RANGES = {
 }
 
 LENGTH_RANGES = {
-    "📄 Snack-size (< 200 pages)": (0, 199),
-    "📘 A normal meal (200–400 pages)": (200, 400),
-    "📚 A full feast (400+ pages)": (401, None),
-    "🤷 Surprise me (any length)": (None, None),
+    "Snack-size (< 200 pages)": (0, 199),
+    "A normal meal (200–400 pages)": (200, 400),
+    "A full feast (400+ pages)": (401, None),
+    "Surprise me (any length)": (None, None),
 }
 
 MOOD_EXTRA_SUBJECTS = {
@@ -114,14 +114,30 @@ def fetch_books(tags):
     docs = {}
 
     def query(subject):
-        params = {"limit": 50}
-        if subject:
-            params["subject"] = subject
-        else:
-            params["q"] = "books"
+        # Build the Solr-style query
+        q_parts = []
 
+        # Subject or extra keyword
+        if subject:
+            q_parts.append(f"subject:{subject}")
+        else:
+            # Generic fallback query
+            q_parts.append("books")
+
+        # Language filter (e.g. language:eng)
         if tags["lang"]:
-            params["language"] = tags["lang"]
+            q_parts.append(f"language:{tags['lang']}")
+
+        # If for kids, bias a bit towards children-related subjects
+        if tags["kids"] == "Yes":
+            q_parts.append("subject:children OR subject:juvenile")
+
+        q = " ".join(q_parts)
+
+        params = {
+            "q": q,
+            "limit": 50,
+        }
 
         r = requests.get(OPENLIBRARY_SEARCH_URL, params=params)
         if r.ok:
@@ -129,11 +145,14 @@ def fetch_books(tags):
                 if d.get("key"):
                     docs[d["key"]] = d
 
+    # Main genres
     for s in tags["subjects"]:
         query(s)
 
+    # Broad search
     query(None)
 
+    # Extra mood-based subjects
     for s in tags["extra"]:
         query(s)
 
@@ -224,22 +243,25 @@ with st.form("quiz"):
     genres = st.multiselect(
         "Choose 1–3 genres you enjoy:",
         list(GENRE_TO_SUBJECT.keys()),
-        default=["Classics 🏛️"]
+        default=["Classics 🏛️"],
     )
 
     st.subheader("2. What mood should your next book have? 🎭")
     mood = st.multiselect(
         "Pick the vibe you're looking for:",
-        list(MOOD_EXTRA_SUBJECTS.keys())
+        list(MOOD_EXTRA_SUBJECTS.keys()),
     )
 
     st.subheader("3. What kind of reading “meal” are you craving? 🍽️")
     length = st.radio("Choose your preferred ‘portion’:", list(LENGTH_RANGES.keys()))
-    year = st.selectbox("What era should it come from?", list(YEAR_RANGES.keys()))
+    year = st.selectbox("Which era should it come from?", list(YEAR_RANGES.keys()))
 
-    st.subheader("4. Which language & who is this book for? 🌍")
-    lang = st.selectbox("Language:", list(LANGUAGE_TO_CODE.keys()))
-    audience = st.selectbox("Who's reading?", ["Just me", "Me & kids"])
+    st.subheader("4. Book language & audience 🌍")
+    lang = st.selectbox(
+        "Which language do you want to read in?",
+        list(LANGUAGE_TO_CODE.keys()),
+    )
+    audience = st.selectbox("Who is this book for?", ["Just me", "Me & kids"])
     kids = "Yes" if audience == "Me & kids" else "No"
 
     go = st.form_submit_button("✨ Find Books")
@@ -282,11 +304,15 @@ if book:
     col1, col2 = st.columns([1, 2])
 
     with col1:
-        st.image(book["cover"] or None, caption="", use_column_width=True)
+        if book["cover"]:
+            st.image(book["cover"], caption="", use_column_width=True)
+        else:
+            st.write("No cover available.")
 
     with col2:
         st.markdown(f"### {book['title']} 📘")
-        st.write(f"**Author:** {book['authors']}")
+        if book["authors"]:
+            st.write(f"**Author:** {book['authors']}")
         st.write(f"**Published:** {book['year']}")
         st.write(f"[🔗 View on Open Library]({book['url']})")
 
@@ -296,13 +322,13 @@ if book:
     st.write(desc or "No summary available.")
 
     st.subheader("⭐ Ratings")
-    if avg:
+    if avg is not None:
         st.write(f"**{avg:.1f} ⭐** ({count} reviews)")
     else:
         st.write("No ratings available.")
 
     st.write("---")
-    st.markdown("### ❤️ Swipe")
+    st.markdown("### Swipe 🤳🏻")
 
     left, right = st.columns(2)
 
@@ -321,3 +347,5 @@ if book:
 
 elif go:
     st.info("Try adjusting your filters for more results.")
+
+
