@@ -29,16 +29,6 @@ GENRE_TO_SUBJECT = {
     "Comics / Manga 💥": "comics",
 }
 
-LANGUAGE_TO_CODE = {
-    "English 🇬🇧": "eng",
-    "Portuguese 🇵🇹": "por",
-    "Spanish 🇪🇸": "spa",
-    "French 🇫🇷": "fre",
-    "German 🇩🇪": "ger",
-    "Italian 🇮🇹": "ita",
-    "No preference 🤷": None,
-}
-
 YEAR_RANGES = {
     "📜 Before 1950": (None, 1949),
     "🎞️ 1950–1980": (1950, 1980),
@@ -50,10 +40,10 @@ YEAR_RANGES = {
 }
 
 LENGTH_RANGES = {
-    "Snack-size (< 200 pages)": (0, 199),
-    "A normal meal (200–400 pages)": (200, 400),
-    "A full feast (400+ pages)": (401, None),
-    "Surprise me (any length)": (None, None),
+    "📄 Snack-size (< 200 pages)": (0, 199),
+    "📘 A normal meal (200–400 pages)": (200, 400),
+    "📚 A full feast (400+ pages)": (401, None),
+    "🤷 Surprise me (any length)": (None, None),
 }
 
 MOOD_EXTRA_SUBJECTS = {
@@ -104,7 +94,6 @@ def build_tags(prefs):
     return {
         "subjects": [GENRE_TO_SUBJECT[g] for g in prefs["genres"]],
         "extra": sum((MOOD_EXTRA_SUBJECTS[m] for m in prefs["mood"]), []),
-        "lang": LANGUAGE_TO_CODE[prefs["language"]],
         "year": YEAR_RANGES[prefs["year_range"]],
         "length": LENGTH_RANGES[prefs["length"]],
         "kids": prefs["kids"],
@@ -114,19 +103,13 @@ def fetch_books(tags):
     docs = {}
 
     def query(subject):
-        # Build the Solr-style query
         q_parts = []
 
-        # Subject or extra keyword
+        # Subject or generic fallback
         if subject:
             q_parts.append(f"subject:{subject}")
         else:
-            # Generic fallback query
             q_parts.append("books")
-
-        # Language filter (e.g. language:eng)
-        if tags["lang"]:
-            q_parts.append(f"language:{tags['lang']}")
 
         # If for kids, bias a bit towards children-related subjects
         if tags["kids"] == "Yes":
@@ -207,7 +190,7 @@ st.title("📚 Bookify – Swipe Your Next Read!")
 st.write("""
 👋 **Welcome to Bookify — where every reader finds their perfect match!**  
 Take our fun, short quiz and let us pair you with a book that feels *just right*.  
-Ready to meet your next story? 
+Ready to meet your next story? 📖✨
 """)
 
 # State
@@ -256,15 +239,11 @@ with st.form("quiz"):
     length = st.radio("Choose your preferred ‘portion’:", list(LENGTH_RANGES.keys()))
     year = st.selectbox("Which era should it come from?", list(YEAR_RANGES.keys()))
 
-    st.subheader("4. Book language & audience 🌍")
-    lang = st.selectbox(
-        "Which language do you want to read in?",
-        list(LANGUAGE_TO_CODE.keys()),
-    )
-    audience = st.selectbox("Who is this book for?", ["Just me", "Me & kids"])
+    st.subheader("4. Who is this book for? 👥")
+    audience = st.selectbox("Who's reading?", ["Just me", "Me & kids"])
     kids = "Yes" if audience == "Me & kids" else "No"
 
-    go = st.form_submit_button("Find Books")
+    go = st.form_submit_button("✨ Find Books")
 
 # =========================
 #  LOAD RESULTS
@@ -276,7 +255,6 @@ if go:
         "mood": mood,
         "length": length,
         "year_range": year,
-        "language": lang,
         "kids": kids,
     }
 
@@ -328,7 +306,7 @@ if book:
         st.write("No ratings available.")
 
     st.write("---")
-    st.markdown("### Swipe 🤳🏻")
+    st.markdown("### ❤️ Swipe")
 
     left, right = st.columns(2)
 
@@ -347,6 +325,3 @@ if book:
 
 elif go:
     st.info("Try adjusting your filters for more results.")
-
-
-
