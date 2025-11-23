@@ -111,7 +111,7 @@ def fetch_books(tags):
         else:
             q_parts.append("books")
 
-        # If for kids, bias a bit towards children-related subjects
+        # If for kids, bias toward children-related subjects
         if tags["kids"] == "Yes":
             q_parts.append("subject:children OR subject:juvenile")
 
@@ -150,14 +150,35 @@ def passes_range(v, a, b):
         return False
     return True
 
+def is_kids_book(doc):
+    title = (doc.get("title") or "").lower()
+    subjects = " ".join(doc.get("subject", [])).lower() if doc.get("subject") else ""
+
+    kids_keywords = [
+        "children", "childrens", "kid", "kids",
+        "juvenile", "coloring book", "colouring book",
+        "notebook", "activity book", "for kids",
+    ]
+
+    return any(k in title for k in kids_keywords) or any(
+        k in subjects for k in kids_keywords
+    )
+
 def filter_books(docs, tags):
     ya, yb = tags["year"]
     pa, pb = tags["length"]
-    return [
+
+    filtered = [
         d for d in docs
         if passes_range(d.get("first_publish_year"), ya, yb)
         and passes_range(d.get("number_of_pages_median"), pa, pb)
     ]
+
+    # If it's NOT for kids, remove kids-style books
+    if tags["kids"] == "No":
+        filtered = [d for d in filtered if not is_kids_book(d)]
+
+    return filtered
 
 # =========================
 # TRUE RANDOM SELECTOR
@@ -325,3 +346,4 @@ if book:
 
 elif go:
     st.info("Try adjusting your filters for more results.")
+
