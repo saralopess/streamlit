@@ -207,7 +207,7 @@ st.title("📚 Bookify – Swipe Your Next Read!")
 st.write("""
 👋 **Welcome to Bookify — where every reader finds their perfect match!**  
 Take our fun, short quiz and let us pair you with a book that feels *just right*.  
-Ready to meet your next story? 📖✨
+Ready to meet your next story? 
 """)
 
 # State
@@ -264,7 +264,7 @@ with st.form("quiz"):
     audience = st.selectbox("Who is this book for?", ["Just me", "Me & kids"])
     kids = "Yes" if audience == "Me & kids" else "No"
 
-    go = st.form_submit_button("✨ Find Books")
+    go = st.form_submit_button("Find Books")
 
 # =========================
 #  LOAD RESULTS
@@ -347,5 +347,6 @@ if book:
 
 elif go:
     st.info("Try adjusting your filters for more results.")
+
 
 
