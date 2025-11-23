@@ -243,26 +243,26 @@ if not st.session_state.likes:
 # =========================
 
 with st.form("quiz"):
-    st.subheader("1. What kind of genre are you in the mood for? 🏷️")
+    st.subheader("What kind of genre are you in the mood for?")
     genres = st.multiselect(
         "Choose 1–3 genres you enjoy:",
         list(GENRE_TO_SUBJECT.keys()),
         default=["Classics 🏛️"],
     )
 
-    st.subheader("2. What mood should your next book have? 🎭")
+    st.subheader("What mood should your next book have?")
     mood = st.multiselect(
         "Pick the vibe you're looking for:",
         list(MOOD_EXTRA_SUBJECTS.keys()),
     )
 
-    st.subheader("3. What kind of reading “meal” are you craving? 🍽️")
+    st.subheader("What kind of reading “meal” are you craving?")
     length = st.radio("Choose your preferred ‘portion’:", list(LENGTH_RANGES.keys()))
     year = st.selectbox("Which era should it come from?", list(YEAR_RANGES.keys()))
 
-    st.subheader("4. Who is this book for? 👥")
-    audience = st.selectbox("Who's reading?", ["Just me", "Me & kids"])
-    kids = "Yes" if audience == "Me & kids" else "No"
+    st.subheader("Who is this book for?")
+    audience = st.selectbox("Who's reading?", ["Just me👤", "Me & kids👥"])
+    kids = "Yes" if audience == "Me & kids👥" else "No"
 
     go = st.form_submit_button("Find Books")
 
@@ -346,5 +346,6 @@ if book:
 
 elif go:
     st.info("Try adjusting your filters for more results.")
+
 
 
