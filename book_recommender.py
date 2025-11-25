@@ -194,7 +194,7 @@ def format_book(d):
 #  UI
 # =========================
 
-st.title("📚 Bookify – Swipe Your Next Read!")
+st.title("📚 Bookify – Match Your Next Read!")
 
 st.write("""
 👋 **Welcome to Bookify — where every reader finds their perfect match!**  
@@ -335,6 +335,7 @@ if book:
 
 elif go:
     st.info("Try adjusting your filters for more results.")
+
 
 
 
