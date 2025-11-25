@@ -105,37 +105,29 @@ def fetch_books(tags):
     def query(subject):
         q_parts = []
 
-        # Subject or generic fallback
         if subject:
             q_parts.append(f"subject:{subject}")
         else:
             q_parts.append("books")
 
-        # If for kids, bias toward children-related subjects
         if tags["kids"] == "Yes":
             q_parts.append("subject:children OR subject:juvenile")
 
         q = " ".join(q_parts)
 
-        params = {
-            "q": q,
-            "limit": 50,
-        }
-
+        params = {"q": q, "limit": 50}
         r = requests.get(OPENLIBRARY_SEARCH_URL, params=params)
+
         if r.ok:
             for d in r.json().get("docs", []):
                 if d.get("key"):
                     docs[d["key"]] = d
 
-    # Main genres
     for s in tags["subjects"]:
         query(s)
 
-    # Broad search
     query(None)
 
-    # Extra mood-based subjects
     for s in tags["extra"]:
         query(s)
 
@@ -160,9 +152,7 @@ def is_kids_book(doc):
         "notebook", "activity book", "for kids",
     ]
 
-    return any(k in title for k in kids_keywords) or any(
-        k in subjects for k in kids_keywords
-    )
+    return any(k in title for k in kids_keywords) or any(k in subjects for k in kids_keywords)
 
 def filter_books(docs, tags):
     ya, yb = tags["year"]
@@ -174,7 +164,6 @@ def filter_books(docs, tags):
         and passes_range(d.get("number_of_pages_median"), pa, pb)
     ]
 
-    # If it's NOT for kids, remove kids-style books
     if tags["kids"] == "No":
         filtered = [d for d in filtered if not is_kids_book(d)]
 
@@ -207,14 +196,12 @@ def format_book(d):
 
 st.title("📚 Bookify – Swipe Your Next Read!")
 
-# INTRO
 st.write("""
 👋 **Welcome to Bookify — where every reader finds their perfect match!**  
 Take our fun, short quiz and let us pair you with a book that feels *just right*.  
 Ready to meet your next story? 
 """)
 
-# State
 if "results" not in st.session_state:
     st.session_state.results = []
 
@@ -224,7 +211,6 @@ if "book" not in st.session_state:
 if "likes" not in st.session_state:
     st.session_state.likes = []
 
-# Sidebar
 st.sidebar.header("❤️ Your Liked Books")
 for b in st.session_state.likes:
     st.sidebar.markdown(
@@ -327,7 +313,7 @@ if book:
         st.write("No ratings available.")
 
     st.write("---")
-    st.markdown("### ❤️ Swipe")
+    st.markdown("### Like it or Leave it")
 
     left, right = st.columns(2)
 
@@ -344,8 +330,12 @@ if book:
         )
         st.rerun()
 
+    # NEW CAPTION HERE
+    st.caption("Tap **Like** to save this book to your list, or **Skip** to see another match.")
+
 elif go:
     st.info("Try adjusting your filters for more results.")
+
 
 
 
